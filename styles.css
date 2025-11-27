@@ -1,0 +1,85 @@
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #eef2f7;
+}
+
+header {
+  background: #0b3d91;
+  color: white;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  width: 90%;
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.hidden {
+  display: none;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  font-weight: bold;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #aaa;
+}
+
+button {
+  padding: 12px 20px;
+  background: #0b3d91;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #062c6f;
+}
+
+#mensajes.error {
+  background: #ffe6e6;
+  border-left: 5px solid #cc0000;
+}
+
+#mensajes.success {
+  background: #e6ffe6;
+  border-left: 5px solid #00cc00;
+}
+
+#resultado {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+footer {
+  text-align: center;
+  padding: 15px;
+  background: #0b3d91;
+  color: white;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+}
