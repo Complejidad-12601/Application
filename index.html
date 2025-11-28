@@ -8,12 +8,12 @@
 <body>
   <header>
     <h1>Búsqueda de Ruta de Referencia Médica</h1>
-    <p>Seleccione un establecimiento de nivel I como origen y un hospital de nivel II o III como destino.</p>
+    <p>Seleccione un establecimiento de nivel I como origen y, opcionalmente, un hospital de nivel II o III como destino.</p>
   </header>
 
   <!-- PANTALLA 1 -->
   <section id="seleccion-ruta" class="card">
-    <h2>Pantalla 1 – Selección de ruta</h2>
+    <h2>Pantalla 1 – Selección de ruta / análisis</h2>
 
     <div class="form-group">
       <label for="origenSelect">Establecimiento de nivel I (origen):</label>
@@ -44,14 +44,26 @@
   <!-- PANTALLA 2 -->
   <section id="resultados" class="card hidden">
     <h2>Pantalla 2 – Resultados</h2>
-    
+
     <p><strong>Origen:</strong> <span id="resultadoOrigen">-</span></p>
     <p><strong>Destino:</strong> <span id="resultadoDestino">-</span></p>
     <p><strong>Distancia / Costo total:</strong> <span id="resultadoDistancia">-</span> km</p>
     <p><strong>Resumen:</strong> <span id="resultadoResumen">-</span></p>
 
-    <h3 id="tituloLista">Ruta óptima:</h3>
+    <h3 id="tituloLista">Detalle:</h3>
     <ol id="listaRuta"></ol>
+  </section>
+
+  <!-- VISUALIZACIÓN DE GRAFOS -->
+  <section id="grafo-general" class="card">
+    <h2>Visualización – Grafo nacional</h2>
+    <canvas id="canvasGeneral" width="900" height="400"></canvas>
+  </section>
+
+  <section id="grafo-regional" class="card">
+    <h2>Visualización – Grafo por región</h2>
+    <p><strong>Región actual:</strong> <span id="regionActual">-</span></p>
+    <canvas id="canvasRegion" width="900" height="400"></canvas>
   </section>
 
   <!-- PANTALLA 3 -->
