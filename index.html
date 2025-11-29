@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Búsqueda de Ruta de Referencia Médica</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div>
+        <h1>Sistema de Referencias Médicas</h1>
+        <p>Visualice la red de establecimientos y calcule rutas óptimas de referencia.</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- PANTALLA 1 -->
+  <section id="seleccion-ruta" class="card">
+    <h2>Pantalla 1 – Selección de ruta / análisis</h2>
+
+    <!-- Región + tipo de análisis -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="regionSelect">Región:</label>
+        <select id="regionSelect">
+          <option value="ALL">Todas las regiones</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="modoSelect">Tipo de análisis:</label>
+        <select id="modoSelect">
+          <option value="ruta">Ruta mínima origen–destino (Dijkstra)</option>
+          <option value="mst">Red mínima de referencia (MST)</option>
+          <option value="componentes">Componentes conexas de la red</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Modo de destino + servicio -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="searchModeSelect">Modo de destino:</label>
+        <select id="searchModeSelect">
+          <option value="hospital">Destino por hospital seleccionado</option>
+          <option value="service">Destino por servicio requerido</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="serviceSelect">Servicio requerido:</label>
+        <select id="serviceSelect" disabled>
+          <option value="">-- Seleccionar servicio --</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Origen y destino -->
+    <div class="form-group">
+      <label for="origenSelect">Establecimiento de nivel I (origen):</label>
+      <select id="origenSelect">
+        <option value="">-- Seleccionar origen (nivel I) --</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="destinoSelect">Hospital nivel II/III (destino) (opcional):</label>
+      <select id="destinoSelect">
+        <option value="">-- Seleccionar destino (opcional) --</option>
+      </select>
+    </div>
+
+    <button id="calcularBtn">Calcular</button>
+  </section>
+
+  <!-- PANTALLA VISUALIZACIÓN -->
+  <section id="visualizacion" class="card">
+    <h2>Pantalla 1.1 – Visualización de la red</h2>
+    <p class="help-text">
+      Cada punto representa un establecimiento de salud. El color indica el nivel de complejidad.
+      Puede filtrar por región y seleccionar origen/destino para resaltar los nodos. Al calcular una ruta,
+      la red mostrará el camino mínimo encontrado.
+    </p>
+    <div class="graph-container">
+      <canvas id="graphCanvas"></canvas>
+      <div class="legend">
+        <span class="legend-item">
+          <span class="legend-dot nivel-I"></span> Nivel I
+        </span>
+        <span class="legend-item">
+          <span class="legend-dot nivel-II"></span> Nivel II
+        </span>
+        <span class="legend-item">
+          <span class="legend-dot nivel-III"></span> Nivel III
+        </span>
+        <span class="legend-item">
+          <span class="legend-dot origen-dot"></span> Origen
+        </span>
+        <span class="legend-item">
+          <span class="legend-dot destino-dot"></span> Destino
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PANTALLA 2 -->
+  <section id="resultados" class="card hidden">
+    <h2>Pantalla 2 – Resultados</h2>
+
+    <p><strong>Origen:</strong> <span id="resultadoOrigen">-</span></p>
+    <p><strong>Destino:</strong> <span id="resultadoDestino">-</span></p>
+    <p><strong>Distancia / Costo total:</strong> <span id="resultadoDistancia">-</span> km</p>
+    <p><strong>Resumen:</strong> <span id="resultadoResumen">-</span></p>
+
+    <h3 id="tituloLista">Detalle:</h3>
+    <ol id="listaRuta"></ol>
+    <button id="copiarInformeMstBtn" class="secondary-btn hidden">
+      Copiar informe MST
+    </button>
+
+  </section>
+
+  <!-- PANTALLA 3 -->
+  <section id="mensajes" class="card hidden">
+    <h2>Pantalla 3 – Mensajes</h2>
+    <p id="mensajeTexto"></p>
+  </section>
+
+  <footer>
+    <small>Sistema de Referencia Médica</small>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
