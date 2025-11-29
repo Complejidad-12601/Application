@@ -97,8 +97,13 @@ function procesarCSV(filas) {
 
   filas.forEach(fila => {
     const id = String(fila.id || "").trim();
+    if (!id) return;
+
     const name = fila.name || "";
     const level = fila.level || "";
+    const region = fila.region || "";
+    const lat = Number(fila.lat);
+    const lon = Number(fila.lon);
     const region = fila.region || "";
     const lat = Number(fila.lat);
     const lon = Number(fila.lon);
@@ -138,21 +143,19 @@ function procesarCSV(filas) {
       try {
         const relArray = JSON.parse(relations);
         relArray.forEach(r => {
-          const to = String(r.target_id).trim();
+          const to = String(r.target_id || "").trim();
           const weight = Number(r.weight_km);
-
           if (!to || !isFinite(weight)) return;
 
           adjacencyList[id].push({ to, weight });
+          adjacencyList[id].push({ to, weight });
 
-          if (!adjacencyListUndirected[to]) {
-            adjacencyListUndirected[to] = [];
-          }
+          if (!adjacencyListUndirected[to]) adjacencyListUndirected[to] = [];
           adjacencyListUndirected[id].push({ to, weight });
           adjacencyListUndirected[to].push({ to: id, weight });
         });
       } catch (e) {
-        console.error("Error en relations:", e);
+        console.error("Error parseando relations", e);
       }
     }
   });
@@ -558,19 +561,6 @@ function dijkstra(startId) {
   return { dist, prev };
 }
 
-function reconstruirRuta(prev, start, end) {
-  const path = [];
-  let curr = end;
-
-  while (curr) {
-    path.unshift(curr);
-    if (curr === start) break;
-    curr = prev[curr];
-  }
-
-  return path[0] === start ? path : null;
-}
-
 function buscarHospitalMasCercano(dist) {
   const hospitales = nodes.filter(n =>
     n.level.toUpperCase().startsWith("II") ||
@@ -620,7 +610,7 @@ function buscarHospitalPorServicio(dist, servicio) {
 
 function mstPrim() {
   const ids = nodes.map(n => n.id);
-  if (ids.length === 0) return { edges: [], totalWeight: 0 };
+  if (!ids.length) return { edges: [], totalWeight: 0 };
 
   const inMST = new Set();
   const dist = {};
@@ -643,8 +633,8 @@ function mstPrim() {
         u = id;
       }
     });
-
     if (u === null) break;
+
     inMST.add(u);
 
     (adjacencyListUndirected[u] || []).forEach(edge => {
@@ -659,14 +649,9 @@ function mstPrim() {
 
   const edges = [];
   let total = 0;
-
   ids.forEach(id => {
     if (parent[id] && isFinite(dist[id])) {
-      edges.push({
-        from: parent[id],
-        to: id,
-        weight: dist[id]
-      });
+      edges.push({ from: parent[id], to: id, weight: dist[id] });
       total += dist[id];
     }
   });
@@ -692,9 +677,9 @@ function componentesConexas() {
       const comp = [];
       visited.add(id);
 
-      while (stack.length > 0) {
-        const u = stack.pop();
-        comp.push(u);
+    while (stack.length) {
+      const u = stack.pop();
+      comp.push(u);
 
         (adjacencyListUndirected[u] || []).forEach(edge => {
           const v = edge.to;
@@ -705,8 +690,7 @@ function componentesConexas() {
         });
       }
 
-      comps.push(comp);
-    }
+    comps.push(comp);
   });
 
   return comps;
@@ -720,7 +704,12 @@ calcularBtn.addEventListener("click", () => {
   seccionResultados.classList.add("hidden");
   seccionMensajes.classList.add("hidden");
   seccionMensajes.classList.remove("error");
-  seccionMensajes.classList.remove("success");
+
+  listaRuta.innerHTML = "";
+  resultadoOrigen.textContent = "-";
+  resultadoDestino.textContent = "-";
+  resultadoDistancia.textContent = "-";
+  resultadoResumen.textContent = "-";
 
   const modo = modoSelect.value || "ruta";
   const origenId = origenSelect.value;
@@ -782,6 +771,8 @@ calcularBtn.addEventListener("click", () => {
     const mst = mstPrim();
     if (!mst.edges.length) {
       mostrarError("No se pudo construir una red mínima de referencia (MST).");
+      dibujarGrafoGeneral(null, null);
+      dibujarGrafoRegion(null, null, null);
       return;
     }
     mostrarResultadosMST(mst);
@@ -791,6 +782,8 @@ calcularBtn.addEventListener("click", () => {
     const comps = componentesConexas();
     if (!comps.length) {
       mostrarError("No se encontraron componentes conexas en la red.");
+      dibujarGrafoGeneral(null, null);
+      dibujarGrafoRegion(null, null, null);
       return;
     }
     mostrarResultadosComponentes(comps);
@@ -839,7 +832,6 @@ function mostrarResultadosRuta(origenId, destinoId, distancia, ruta) {
 
   tituloLista.textContent = "Ruta óptima:";
   listaRuta.innerHTML = "";
-
   ruta.forEach(id => {
     const nodo = nodes.find(n => n.id === id);
     const item = document.createElement("li");
@@ -854,6 +846,10 @@ function mostrarResultadosRuta(origenId, destinoId, distancia, ruta) {
   }
 
   seccionResultados.classList.remove("hidden");
+
+  // Dibujo: resaltar ruta
+  dibujarGrafoGeneral(ruta, null);
+  dibujarGrafoRegion(origenNodo ? origenNodo.region : null, ruta, null);
 }
 
 function mostrarResultadosMST(mst) {
@@ -894,9 +890,8 @@ function mostrarResultadosMST(mst) {
     `${total.toFixed(2)} km (promedio ${promedio.toFixed(2)} km por conexión).` +
     extra;
 
-  tituloLista.textContent = "Aristas de la red mínima de referencia (MST):";
+  tituloLista.textContent = "Aristas de la red mínima (MST):";
   listaRuta.innerHTML = "";
-
   mst.edges.forEach(e => {
     const from = nodes.find(n => n.id === e.from);
     const to = nodes.find(n => n.id === e.to);
