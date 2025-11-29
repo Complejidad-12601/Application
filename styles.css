@@ -1,85 +1,241 @@
 * {
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
 }
 
 body {
   margin: 0;
-  background: #eef2f7;
+  background: #f3f5fb;
+  color: #222;
 }
 
+/* HEADER */
+
 header {
-  background: #0b3d91;
+  background: linear-gradient(135deg, #0b3d91, #1476d2);
   color: white;
-  padding: 20px;
+  padding: 20px 30px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
+
+.header-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h1 {
+  margin: 0 0 6px 0;
+  font-size: 1.7rem;
+}
+
+header p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* CARDS */
 
 .card {
   background: white;
   width: 90%;
-  max-width: 900px;
-  margin: 30px auto;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  max-width: 1100px;
+  margin: 25px auto;
+  padding: 22px 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+/* FORM */
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 220px;
+}
+
+label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  font-size: 0.95rem;
+}
+
+select:focus {
+  outline: none;
+  border-color: #0b3d91;
+  box-shadow: 0 0 0 2px rgba(11, 61, 145, 0.2);
+}
+
+/* BUTTON */
+
+button {
+  padding: 12px 22px;
+  background: #0b3d91;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-top: 5px;
+  transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.15s ease;
+}
+
+button:hover {
+  background: #07407d;
+  box-shadow: 0 4px 10px rgba(15,23,42,0.25);
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 .hidden {
   display: none;
 }
 
-.form-group {
-  margin-bottom: 15px;
-}
+/* GRAFO */
 
-label {
-  font-weight: bold;
-}
-
-select {
+.graph-container {
+  position: relative;
   width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #aaa;
+  height: 420px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: radial-gradient(circle at top left, #f9fafb, #e5edff);
+  overflow: hidden;
 }
 
-button {
-  padding: 12px 20px;
-  background: #0b3d91;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+#graphCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
-button:hover {
-  background: #062c6f;
+/* LEYENDA */
+
+.legend {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 999px;
+  padding: 6px 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.8rem;
+  box-shadow: 0 2px 6px rgba(15,23,42,0.15);
 }
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.legend-dot.nivel-I {
+  background: #16a34a;
+}
+
+.legend-dot.nivel-II {
+  background: #f97316;
+}
+
+.legend-dot.nivel-III {
+  background: #ef4444;
+}
+
+.legend-dot.origen-dot {
+  background: #22c55e;
+  border: 2px solid #14532d;
+}
+
+.legend-dot.destino-dot {
+  background: #e11d48;
+  border: 2px solid #881337;
+}
+
+.help-text {
+  font-size: 0.85rem;
+  color: #475569;
+  margin-bottom: 10px;
+}
+
+/* MENSAJES */
 
 #mensajes.error {
   background: #ffe6e6;
-  border-left: 5px solid #cc0000;
+  border-left: 6px solid #dc2626;
 }
 
 #mensajes.success {
-  background: #e6ffe6;
-  border-left: 5px solid #00cc00;
+  background: #e0fbea;
+  border-left: 6px solid #16a34a;
 }
 
-#resultado {
-  margin-top: 20px;
-  padding: 15px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+/* RESULTADOS LISTA */
+
+#listaRuta {
+  margin-top: 10px;
+  padding-left: 20px;
 }
+
+/* FOOTER */
 
 footer {
   text-align: center;
-  padding: 15px;
+  padding: 14px;
   background: #0b3d91;
   color: white;
-  position: fixed;
-  width: 100%;
-  bottom: 0;
+  margin-top: 40px;
+}
+/* BOTÓN COPIAR */
+.secondary-btn {
+  margin-top: 10px;
+  padding: 10px 16px;
+  background: #e2e8f0;
+  color: #0f172a;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.secondary-btn:hover {
+  background: #cbd5f5;
 }
