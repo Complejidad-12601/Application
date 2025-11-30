@@ -250,7 +250,7 @@ function actualizarCamposSegunModo() {
     lastServiceFilter = null;
     dibujarGrafo();
   } else {
-    // Modo ruta
+    // Modo ruta (Dijkstra)
     origenSelect.disabled = false;
     searchModeSelect.disabled = false;
 
@@ -265,11 +265,13 @@ function actualizarCamposSegunModo() {
     }
   }
 
+  // Botón de copiar informe MST
   if (copiarInformeMstBtn) {
     copiarInformeMstBtn.classList.add("hidden");
   }
   lastMstReportText = "";
 }
+
 
 // =========================
 // Llenar selects origen/destino
@@ -697,6 +699,20 @@ function componentesConexas() {
   return comps;
 }
 
+function reconstruirRuta(prev, start, end) {
+  const path = [];
+  let curr = end;
+
+  while (curr) {
+    path.unshift(curr);
+    if (curr === start) break;
+    curr = prev[curr];
+  }
+
+  // Si el primer nodo de la ruta NO es el origen,
+  // significa que no hay camino válido
+  return path[0] === start ? path : null;
+}
 
 
 // =========================
@@ -706,6 +722,7 @@ calcularBtn.addEventListener("click", () => {
   seccionResultados.classList.add("hidden");
   seccionMensajes.classList.add("hidden");
   seccionMensajes.classList.remove("error");
+  seccionMensajes.classList.remove("success");
 
   listaRuta.innerHTML = "";
   resultadoOrigen.textContent = "-";
@@ -742,8 +759,9 @@ calcularBtn.addEventListener("click", () => {
       destinoFinal = buscarHospitalPorServicio(dist, servicio);
     } else {
       lastServiceFilter = null;
-      destinoFinal = destinoId ? nodes.find(n => n.id === destinoId)
-                               : buscarHospitalMasCercano(dist);
+      destinoFinal = destinoId
+        ? nodes.find(n => n.id === destinoId)
+        : buscarHospitalMasCercano(dist);
     }
 
     if (!destinoFinal) {
@@ -773,8 +791,7 @@ calcularBtn.addEventListener("click", () => {
     const mst = mstPrim();
     if (!mst.edges.length) {
       mostrarError("No se pudo construir una red mínima de referencia (MST).");
-      dibujarGrafoGeneral(null, null);
-      dibujarGrafoRegion(null, null, null);
+      dibujarGrafo();
       return;
     }
     mostrarResultadosMST(mst);
@@ -784,8 +801,7 @@ calcularBtn.addEventListener("click", () => {
     const comps = componentesConexas();
     if (!comps.length) {
       mostrarError("No se encontraron componentes conexas en la red.");
-      dibujarGrafoGeneral(null, null);
-      dibujarGrafoRegion(null, null, null);
+      dibujarGrafo();
       return;
     }
     mostrarResultadosComponentes(comps);
@@ -793,6 +809,14 @@ calcularBtn.addEventListener("click", () => {
   }
 });
 
+modoSelect.addEventListener("change", () => {
+  actualizarCamposSegunModo();
+  lastPath = [];
+  lastServiceFilter = null;
+  dibujarGrafo();
+});
+
+// Resto de listeners:
 origenSelect.addEventListener("change", () => {
   lastPath = [];
   lastServiceFilter = null;
@@ -805,9 +829,7 @@ destinoSelect.addEventListener("change", () => {
   dibujarGrafo();
 });
 
-modoSelect.addEventListener("change", () => {
-  actualizarCamposSegunModo();
-});
+
 
 // =========================
 // Mostrar resultados / errores
@@ -834,6 +856,7 @@ function mostrarResultadosRuta(origenId, destinoId, distancia, ruta) {
 
   tituloLista.textContent = "Ruta óptima:";
   listaRuta.innerHTML = "";
+
   ruta.forEach(id => {
     const nodo = nodes.find(n => n.id === id);
     const item = document.createElement("li");
@@ -848,11 +871,8 @@ function mostrarResultadosRuta(origenId, destinoId, distancia, ruta) {
   }
 
   seccionResultados.classList.remove("hidden");
-
-  // Dibujo: resaltar ruta
-  dibujarGrafoGeneral(ruta, null);
-  dibujarGrafoRegion(origenNodo ? origenNodo.region : null, ruta, null);
 }
+
 
 function mostrarResultadosMST(mst) {
   const numNodos = nodes.length;
