@@ -97,20 +97,15 @@ function procesarCSV(filas) {
 
   filas.forEach(fila => {
     const id = String(fila.id || "").trim();
-    if (!id) return;
+    if (!id) return; // si no hay id, se ignora la fila
 
-    const name = fila.name || "";
-    const level = fila.level || "";
+    const name   = fila.name   || "";
+    const level  = fila.level  || "";
     const region = fila.region || "";
-    const lat = Number(fila.lat);
-    const lon = Number(fila.lon);
-    const region = fila.region || "";
-    const lat = Number(fila.lat);
-    const lon = Number(fila.lon);
+    const lat    = Number(fila.lat);
+    const lon    = Number(fila.lon);
 
-    if (!id) return;
-
-    // Parse de servicios
+    // ---- Parse de servicios ----
     let servicesArr = [];
     const servicesRaw = fila.services;
     if (servicesRaw) {
@@ -118,10 +113,8 @@ function procesarCSV(filas) {
         servicesArr = servicesRaw;
       } else if (typeof servicesRaw === "string") {
         try {
-          servicesArr = JSON.parse(servicesRaw);
-          if (!Array.isArray(servicesArr)) {
-            servicesArr = [];
-          }
+          const parsed = JSON.parse(servicesRaw);
+          servicesArr = Array.isArray(parsed) ? parsed : [];
         } catch {
           servicesArr = servicesRaw
             .split(/[;,]/)
@@ -133,35 +126,42 @@ function procesarCSV(filas) {
 
     servicesArr.forEach(s => servicesSet.add(s));
 
+    // Guardar nodo
     nodes.push({ id, name, level, region, lat, lon, services: servicesArr });
 
-    if (!adjacencyList[id]) adjacencyList[id] = [];
+    // Inicializar listas de adyacencia
+    if (!adjacencyList[id])          adjacencyList[id] = [];
     if (!adjacencyListUndirected[id]) adjacencyListUndirected[id] = [];
 
+    // ---- Parse de relaciones (aristas) ----
     const relations = fila.relations;
     if (relations && typeof relations === "string") {
       try {
         const relArray = JSON.parse(relations);
         relArray.forEach(r => {
-          const to = String(r.target_id || "").trim();
+          const to     = String(r.target_id || "").trim();
           const weight = Number(r.weight_km);
           if (!to || !isFinite(weight)) return;
 
-          adjacencyList[id].push({ to, weight });
+          // Grafo dirigido
           adjacencyList[id].push({ to, weight });
 
-          if (!adjacencyListUndirected[to]) adjacencyListUndirected[to] = [];
+          // Grafo no dirigido (para MST y componentes)
+          if (!adjacencyListUndirected[to]) {
+            adjacencyListUndirected[to] = [];
+          }
           adjacencyListUndirected[id].push({ to, weight });
           adjacencyListUndirected[to].push({ to: id, weight });
         });
       } catch (e) {
-        console.error("Error parseando relations", e);
+        console.error("Error parseando relations:", e);
       }
     }
   });
 
   servicesList = Array.from(servicesSet).sort();
 }
+
 
 // =========================
 // Select de servicios
@@ -662,9 +662,8 @@ function mstPrim() {
 function componentesConexas() {
   const visited = new Set();
   const comps = [];
-  const nodesMap = Object.fromEntries(nodes.map(n => [n.id, n]));
 
-  // filtrado por región
+  // Filtrar nodos según región actual
   const regionNodes = nodes.filter(n =>
     currentRegion === "ALL" || n.region === currentRegion
   );
@@ -677,9 +676,10 @@ function componentesConexas() {
       const comp = [];
       visited.add(id);
 
-    while (stack.length) {
-      const u = stack.pop();
-      comp.push(u);
+      // DFS iterativo
+      while (stack.length > 0) {
+        const u = stack.pop();
+        comp.push(u);
 
         (adjacencyListUndirected[u] || []).forEach(edge => {
           const v = edge.to;
@@ -690,11 +690,13 @@ function componentesConexas() {
         });
       }
 
-    comps.push(comp);
+      comps.push(comp);
+    }
   });
 
   return comps;
 }
+
 
 
 // =========================
